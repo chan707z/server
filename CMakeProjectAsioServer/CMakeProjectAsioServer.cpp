@@ -23,9 +23,12 @@ int main()
 		pWorkerThread->create_thread(boost::bind(&io_service::run, pWorkerService.get()));
 	}
 
-	while (true) {
-
-	}
+	auto pJoinThread = make_shared<boost::thread>([&]() {
+		asioServer.JoinNetworkThread();
+		pWorkerThread->join_all();
+	});
+	
+	pJoinThread->join();
 
 	return 0;
 }

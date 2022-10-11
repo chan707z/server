@@ -16,6 +16,10 @@ AsioSection::AsioSection(shared_ptr<io_service> pNetworkService, shared_ptr<io_s
 
 AsioSection::~AsioSection()
 {
+	Disconnect();
+	m_pAcceptor = nullptr;
+	m_pNetworkStrand = nullptr;
+	m_pWorkerStrand = nullptr;
 }
 
 void AsioSection::Init(shared_ptr<ip::tcp::socket> pSocket) {

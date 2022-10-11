@@ -31,12 +31,11 @@ private:
 private:
 	char m_ReceiveBuffer[MAX_BUFFER];
 	unsigned int m_OffSetReceive = 0;
-	char m_SendBuffer[MAX_BUFFER];
 
 	onWorkerCallBack m_WorkerCallBack;
 
-	shared_ptr<ip::tcp::acceptor> m_pAcceptor = nullptr;
 	shared_ptr<ip::tcp::socket> m_pSocket = nullptr;
+	shared_ptr<ip::tcp::acceptor> m_pAcceptor = nullptr;
 	shared_ptr<io_service::strand> m_pNetworkStrand = nullptr;
 	shared_ptr<io_service::strand> m_pWorkerStrand = nullptr;
 };

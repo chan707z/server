@@ -10,8 +10,6 @@ AsioServer::AsioServer()
 
 AsioServer::~AsioServer()
 {
-	m_pAsioRunThread->join_all();
-	m_pWorkerThread->join_all();
 }
 
 void AsioServer::StartServer(const unsigned short port, int sectionCount, shared_ptr<io_service> pWorkerService, onWorkerCallBack workerCallBack)
@@ -23,8 +21,13 @@ void AsioServer::StartServer(const unsigned short port, int sectionCount, shared
 	m_pAsioSectionManager = make_shared<AsioSectionManager>(pNetworkService, pWorkerService, pAcceptor, workerCallBack);
 	m_pAsioSectionManager->Init(sectionCount);
 
-	m_pAsioRunThread = make_shared<boost::thread_group>();
+	m_pNetworkThread = make_shared<boost::thread_group>();
 	for (int i = 0; i < NETWORK_THREAD_COUNT; ++i) {
-		m_pAsioRunThread->create_thread(boost::bind(&io_service::run, pNetworkService.get()));
+		m_pNetworkThread->create_thread(boost::bind(&io_service::run, pNetworkService.get()));
 	}
+}
+
+void AsioServer::JoinNetworkThread()
+{
+	m_pNetworkThread->join_all();
 }
