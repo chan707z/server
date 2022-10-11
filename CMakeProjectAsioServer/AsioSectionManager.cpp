@@ -5,40 +5,57 @@
 //test
 #include <iostream>
 
-AsioSectionManager::AsioSectionManager(std::shared_ptr<boost::asio::io_service> pService, std::shared_ptr<boost::asio::ip::tcp::acceptor> pAcceptor, std::shared_ptr<PoolBuffer> pBuffer)
-	:m_pService(pService), m_pAcceptor(pAcceptor), m_pPoolBuffer(pBuffer)
+AsioSectionManager::AsioSectionManager(shared_ptr<io_service> pNetworkService, shared_ptr<io_service> pWorkerService, shared_ptr<ip::tcp::acceptor> pAcceptor, onWorkerCallBack workerCallBack)
+	:m_pNetworkService(pNetworkService), m_pWorkerService(pWorkerService), m_pAcceptor(pAcceptor), m_workerCallBack(workerCallBack)
 {
-	m_pSectionThread = std::make_shared<boost::thread_group>();
-	m_pStrand = std::make_shared<boost::asio::io_service::strand>(*m_pService.get());
+	//m_pSectionThread = make_shared<boost::thread_group>();
 }
 
 AsioSectionManager::~AsioSectionManager()
 {
-	m_pSectionThread->join_all();
 	m_pAcceptor->close();
-	m_pService->stop();
-
-	m_vecSection.clear();
+	m_pNetworkService->stop();
+	m_pWorkerService->stop();
 }
 
 void AsioSectionManager::Init(int sectionCount = 1000)
 {
-	m_vecSection.reserve(sectionCount);
-	
-	_ExtendSection(sectionCount);
+	for (int i = 0; i < sectionCount; ++i) {
+		AcceptSection();
+	}
 
-	ProcessSectionAccept();
+	//ProcessSectionAccept();
+}
+
+void AsioSectionManager::AcceptSection()
+{
+	auto pSocket = make_shared<ip::tcp::socket>(*m_pNetworkService.get());
+	AsioSection* pSection = m_poolSection.construct(AsioSection(m_pNetworkService, m_pWorkerService, m_pAcceptor, m_workerCallBack));
+	if (pSection == nullptr) {
+		return;
+	}
+
+	shared_ptr<AsioSection> pAsioSection(pSection);
+	pAsioSection->Init(pSocket);
+
+	m_pAcceptor->async_accept(
+		*pAsioSection->getSocket(),
+		[=](const boost::system::error_code& error_Code) {
+			pAsioSection->onConnect(error_Code);
+			AcceptSection();
+		}
+	);
 }
 
 void AsioSectionManager::ProcessSectionAccept()
 {
-	m_pSectionThread->create_thread([&]() {
+	/*m_pSectionThread->create_thread([&]() {
 		while (true) {
 			int Open_Section_Count = 0;
 			int TestCount = 0;
 			for (const auto& pSection : m_vecSection) {
 				if (pSection->getSocket() == nullptr) {
-					auto pSocket = std::make_shared<boost::asio::ip::tcp::socket>(*m_pService.get());
+					auto pSocket = make_shared<ip::tcp::socket>(*m_pService.get());
 					pSection->Init(pSocket);
 
 					m_pAcceptor->async_accept(
@@ -47,11 +64,11 @@ void AsioSectionManager::ProcessSectionAccept()
 							pSection->onConnect(error_Code);
 						}
 					);
-					std::cout << "Ready to Connect Section Num : " << TestCount << std::endl;
+					cout << "Ready to Connect Section Num : " << TestCount << endl;
 				}
 
 				if (pSection->getSocket()->is_open() == true) {
-					std::cout << "open Section : " << TestCount << std::endl;
+					cout << "open Section : " << TestCount << endl;
 					++Open_Section_Count;
 				}
 
@@ -64,28 +81,5 @@ void AsioSectionManager::ProcessSectionAccept()
 
 			boost::this_thread::sleep_for(boost::chrono::seconds(5));
 		}
-		});
-}
-
-void AsioSectionManager::_ExtendSection(int ExtendCount)
-{
-	int Count = m_vecSection.size();
-
-	for (int i = 0; i < ExtendCount; ++i) {
-		auto pSocket = std::make_shared<boost::asio::ip::tcp::socket>(*m_pService.get());
-		auto pAsioSection = std::make_shared<AsioSection>(m_pAcceptor, m_pStrand, m_pPoolBuffer, Count + i);
-		if (pAsioSection == nullptr) {
-			return;
-		}
-		pAsioSection->Init(pSocket);
-
-		m_pAcceptor->async_accept(
-			*pAsioSection->getSocket(),
-			[=](const boost::system::error_code& error_Code) {
-				pAsioSection->onConnect(error_Code);
-			}
-		);
-
-		m_vecSection.push_back(pAsioSection);
-	}
+		});*/
 }

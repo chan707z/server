@@ -24,7 +24,7 @@ void UserBase::Disconnect()
 	m_pSection = nullptr;
 }
 
-void UserBase::SetSection(std::shared_ptr<AsioSection> pSection)
+void UserBase::SetSection(shared_ptr<AsioSection> pSection)
 {
 	if (m_pSection != nullptr) {
 		m_pSection->Disconnect();

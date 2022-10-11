@@ -1,5 +1,6 @@
 #include "TestWorker.h"
 #include "AsioSection.h"
+#include "Protocol.h"
 
 //test
 #include <iostream>
@@ -12,11 +13,13 @@ TestWorker::~TestWorker()
 {
 }
 
-void TestWorker::onRecieve(std::shared_ptr<AsioSection> pSection, const char* pData, const size_t& size)
+void TestWorker::onRecieve(shared_ptr<AsioSection> pSection, shared_ptr<char[]> pPacketBuffer)
 {
 	if (pSection == nullptr) {
 		return;
 	}
 
-	std::cout << "[Worker] From Client : " << &pData[0] << std::endl;
+	Protocol_Test* pTestPacket = reinterpret_cast<Protocol_Test*>(pPacketBuffer.get());
+
+	cout << "[Worker] From Client : " << pTestPacket->msg << endl;
 }

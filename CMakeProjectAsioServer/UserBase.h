@@ -14,10 +14,10 @@ public:
 	void Disconnect();
 	
 protected:
-	void SetSection(std::shared_ptr<AsioSection> pSection);
+	void SetSection(shared_ptr<AsioSection> pSection);
 	virtual void OnDisconnect() = 0;
 
 private:
-	std::mutex m_Mutex;
-	std::shared_ptr<AsioSection> m_pSection = nullptr;
+	mutex m_Mutex;
+	shared_ptr<AsioSection> m_pSection = nullptr;
 };

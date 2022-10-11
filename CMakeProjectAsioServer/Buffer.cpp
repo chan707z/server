@@ -8,7 +8,7 @@ Buffer::~Buffer()
 {
 }
 
-void Buffer::Init(std::shared_ptr<AsioSection> pSection, const char* Buffer, unsigned short size)
+void Buffer::Init(shared_ptr<AsioSection> pSection, const char* Buffer, unsigned short size)
 {
 	memset(m_Buffer, 0, MAX_BUFFER);
 
@@ -17,7 +17,7 @@ void Buffer::Init(std::shared_ptr<AsioSection> pSection, const char* Buffer, uns
 	m_size = size;
 }
 
-std::shared_ptr<AsioSection> Buffer::getSection()
+shared_ptr<AsioSection> Buffer::getSection()
 {
 	return m_pSection;
 }

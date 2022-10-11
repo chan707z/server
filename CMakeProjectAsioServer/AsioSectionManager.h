@@ -2,26 +2,31 @@
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <boost/pool/object_pool.hpp>
+#include "define.h"
 
-class PoolBuffer;
+using namespace boost::asio;
+
 class AsioSection;
 class AsioSectionManager
 {
+	typedef function<void(shared_ptr<AsioSection>, shared_ptr<char[]>)> onWorkerCallBack;
+
 public:
-	AsioSectionManager(std::shared_ptr<boost::asio::io_service> pService, std::shared_ptr<boost::asio::ip::tcp::acceptor> pAcceptor, std::shared_ptr<PoolBuffer> pBuffer);
+	AsioSectionManager(shared_ptr<io_service> pNetworkService, shared_ptr<io_service> pWorkerService, shared_ptr<ip::tcp::acceptor> pAcceptor, onWorkerCallBack workerCallBack);
 	~AsioSectionManager();
 
 	void Init(int sectionCount);
+	void AcceptSection();
 	void ProcessSectionAccept();
-private:
-	void _ExtendSection(int ExtendCount);
 
 private:
-	std::shared_ptr<boost::asio::io_service> m_pService = nullptr;
-	std::shared_ptr<boost::asio::ip::tcp::acceptor> m_pAcceptor = nullptr;
-	std::shared_ptr<boost::thread_group> m_pSectionThread = nullptr;
-	std::shared_ptr<boost::asio::io_service::strand> m_pStrand = nullptr;
-	std::shared_ptr<PoolBuffer> m_pPoolBuffer = nullptr;
+	shared_ptr<io_service> m_pNetworkService = nullptr;
+	shared_ptr<io_service> m_pWorkerService = nullptr;
+	shared_ptr<ip::tcp::acceptor> m_pAcceptor = nullptr;
+	//shared_ptr<boost::thread_group> m_pSectionThread = nullptr;
+	onWorkerCallBack m_workerCallBack;
 
-	std::vector<std::shared_ptr<AsioSection>> m_vecSection;
+	boost::object_pool<AsioSection> m_poolSection;
+	//vector<shared_ptr<AsioSection>> m_vecSection;
 };
