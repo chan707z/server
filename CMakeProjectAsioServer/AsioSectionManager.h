@@ -18,15 +18,12 @@ public:
 
 	void Init(int sectionCount);
 	void AcceptSection();
-	void ProcessSectionAccept();
 
 private:
 	shared_ptr<io_service> m_pNetworkService = nullptr;
 	shared_ptr<io_service> m_pWorkerService = nullptr;
 	shared_ptr<ip::tcp::acceptor> m_pAcceptor = nullptr;
-	//shared_ptr<boost::thread_group> m_pSectionThread = nullptr;
 	onWorkerCallBack m_workerCallBack;
 
 	boost::object_pool<AsioSection> m_poolSection;
-	//vector<shared_ptr<AsioSection>> m_vecSection;
 };

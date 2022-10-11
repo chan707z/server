@@ -108,7 +108,7 @@ void AsioSection::Send(char* pData, int size) {
 void AsioSection::_Recive() {
 	async_read(*m_pSocket.get(),
 		buffer(m_ReceiveBuffer + m_OffSetReceive, MAX_BUFFER - m_OffSetReceive),
-		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onReceive, this,
+		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onReceive, shared_from_this(),
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred))
 	);
@@ -118,7 +118,7 @@ void AsioSection::_Send(char* pData, int size) {
 	shared_ptr<char[]> pPacket(pData);
 	async_write(*m_pSocket.get(),
 		buffer(pPacket.get(), size),
-		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onSend, this, pPacket,
+		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onSend, shared_from_this(), pPacket,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred))
 	);
