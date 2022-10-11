@@ -1,0 +1,21 @@
+#pragma once
+#include "define.h"
+#include <memory>
+
+class AsioSection;
+class Buffer {
+public:
+	Buffer();
+	~Buffer();
+
+public:
+	void Init(std::shared_ptr<AsioSection> pSection, const char* Buffer, unsigned short size);
+	std::shared_ptr<AsioSection> getSection();
+	char* getBuffer();
+	unsigned short& getSize();
+
+private:
+	std::shared_ptr<AsioSection> m_pSection = nullptr;
+	char m_Buffer[MAX_BUFFER];
+	unsigned short m_size = 0;
+};
