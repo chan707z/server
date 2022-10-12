@@ -63,7 +63,7 @@ void AsioSection::onConnect(const boost::system::error_code& err) {
 	_Recive();
 }
 
-void AsioSection::onReceive(const boost::system::error_code& err, size_t bytes_transferred) {
+void AsioSection::onReceive(shared_ptr<AsioSection> pSection, const boost::system::error_code& err, size_t bytes_transferred) {
 	if (err) {
 		if (err == error::eof) {
 			cout << "Disconnet Client" << endl;
@@ -77,23 +77,28 @@ void AsioSection::onReceive(const boost::system::error_code& err, size_t bytes_t
 
 	m_OffSetReceive += static_cast<int>(bytes_transferred);
 
-	Protocol_Packet* pPacket = reinterpret_cast<Protocol_Packet*>(m_ReceiveBuffer);
-	if (m_OffSetReceive >= pPacket->size) {
-		m_OffSetReceive = m_OffSetReceive - pPacket->size;
-		memcpy(m_ReceiveBuffer, m_ReceiveBuffer + pPacket->size, m_OffSetReceive);
+	while (true) {
+		Protocol_Packet* pPacket = reinterpret_cast<Protocol_Packet*>(m_ReceiveBuffer);
+		if (m_OffSetReceive >= pPacket->size) {
+			shared_ptr<Buffer> pBuffer = make_shared<Buffer>();
+			memcpy(pBuffer->buffer, m_ReceiveBuffer, pPacket->size);
 
-		shared_ptr<char[]> pBuffer(m_ReceiveBuffer);
+			m_OffSetReceive = m_OffSetReceive - pPacket->size;
+			memcpy(m_ReceiveBuffer, m_ReceiveBuffer + pPacket->size, m_OffSetReceive);
 
-		m_pWorkerStrand->dispatch(boost::bind(m_WorkerCallBack, shared_from_this(), pBuffer));
+			shared_ptr<char[]> pBuffer(m_ReceiveBuffer);
 
-		char Message[MAX_BUFFER] = {};
-		memcpy(Message, m_ReceiveBuffer, bytes_transferred);
+			m_pWorkerStrand->dispatch(boost::bind(m_WorkerCallBack, shared_from_this(), pBuffer));
+		}
+		else {
+			break;
+		}
 	}
 
 	_Recive();
 }
 
-void AsioSection::onSend(shared_ptr<char[]> data, const boost::system::error_code& err, size_t bytes_transferred) {
+void AsioSection::onSend(shared_ptr<AsioSection> pSection, shared_ptr<char[]> data, const boost::system::error_code& err, size_t bytes_transferred) {
 	if (err) {
 		cout << "[Error onSend] Number : " << err.value() << " Message : " << err.message() << endl;
 		return;
@@ -108,7 +113,7 @@ void AsioSection::Send(char* pData, int size) {
 void AsioSection::_Recive() {
 	async_read(*m_pSocket.get(),
 		buffer(m_ReceiveBuffer + m_OffSetReceive, MAX_BUFFER - m_OffSetReceive),
-		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onReceive, shared_from_this(),
+		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onReceive, this, shared_from_this(),
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred))
 	);
@@ -118,7 +123,7 @@ void AsioSection::_Send(char* pData, int size) {
 	shared_ptr<char[]> pPacket(pData);
 	async_write(*m_pSocket.get(),
 		buffer(pPacket.get(), size),
-		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onSend, shared_from_this(), pPacket,
+		m_pNetworkStrand->wrap(boost::bind(&AsioSection::onSend, this, shared_from_this(), pPacket,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred))
 	);

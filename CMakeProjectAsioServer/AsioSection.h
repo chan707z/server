@@ -9,7 +9,7 @@ using namespace boost::asio;
 class UserBase;
 class AsioSection : public BaseSection, enable_shared_from_this<AsioSection>
 {
-	typedef function<void(shared_ptr<AsioSection>, shared_ptr<char[]>)> onWorkerCallBack;
+	typedef function<void(shared_ptr<AsioSection>, shared_ptr<Buffer>)> onWorkerCallBack;
 
 public:
 	AsioSection(shared_ptr<io_service> pNetworkService, shared_ptr<io_service> pWorkerService, shared_ptr<ip::tcp::acceptor> pAcceptor, onWorkerCallBack workerCallBack);
@@ -19,8 +19,8 @@ public:
 	shared_ptr<ip::tcp::socket> getSocket();
 
 	void onConnect(const boost::system::error_code& err);
-	void onReceive(const boost::system::error_code& err, size_t bytes_transferred);
-	void onSend(shared_ptr<char[]> data, const boost::system::error_code& err, size_t bytes_transferred);
+	void onReceive(shared_ptr<AsioSection> pSection, const boost::system::error_code& err, size_t bytes_transferred);
+	void onSend(shared_ptr<AsioSection> pSection, shared_ptr<char[]> data, const boost::system::error_code& err, size_t bytes_transferred);
 	
 	void Disconnect();
 	void Send(char* data, int size);

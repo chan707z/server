@@ -6,3 +6,7 @@
 #define WORKER_THREAD_COUNT 10
 
 using namespace std;
+
+struct Buffer {
+	char buffer[MAX_BUFFER] = {0,};
+};

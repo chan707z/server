@@ -10,7 +10,7 @@ class AsioSectionManager;
 class AsioSection;
 class AsioServer
 {
-	typedef function<void(shared_ptr<AsioSection>, shared_ptr<char[]>)> onWorkerCallBack;
+	typedef function<void(shared_ptr<AsioSection>, shared_ptr<Buffer>)> onWorkerCallBack;
 public:
 	AsioServer();
 	~AsioServer();

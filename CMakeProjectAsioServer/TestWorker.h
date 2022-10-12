@@ -9,6 +9,6 @@ public:
 	TestWorker();
 	~TestWorker();
 
-	static void onRecieve(shared_ptr<AsioSection> pSection, shared_ptr<char[]> pPacketBuffer);
+	static void onRecieve(shared_ptr<AsioSection> pSection, shared_ptr<Buffer> pPacketBuffer);
 private:
 };

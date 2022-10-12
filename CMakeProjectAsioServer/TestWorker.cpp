@@ -13,7 +13,7 @@ TestWorker::~TestWorker()
 {
 }
 
-void TestWorker::onRecieve(shared_ptr<AsioSection> pSection, shared_ptr<char[]> pPacketBuffer)
+void TestWorker::onRecieve(shared_ptr<AsioSection> pSection, shared_ptr<Buffer> pPacketBuffer)
 {
 	if (pSection == nullptr) {
 		return;
