@@ -77,21 +77,21 @@ void AsioSection::onReceive(shared_ptr<AsioSection> pSection, const boost::syste
 
 	m_OffSetReceive += static_cast<int>(bytes_transferred);
 
-	while (true) {
-		Protocol_Packet* pPacket = reinterpret_cast<Protocol_Packet*>(m_ReceiveBuffer);
-		if (m_OffSetReceive >= pPacket->size) {
-			shared_ptr<Buffer> pBuffer = make_shared<Buffer>();
-			memcpy(pBuffer->buffer, m_ReceiveBuffer, pPacket->size);
+	if (m_OffSetReceive > HEADER_SIZE) {
+		while (true) {
+			Protocol_Packet* pPacket = reinterpret_cast<Protocol_Packet*>(m_ReceiveBuffer);
+			if (m_OffSetReceive >= pPacket->size) {
+				shared_ptr<Buffer> pBuffer = make_shared<Buffer>();
+				memcpy(pBuffer->buffer, m_ReceiveBuffer, pPacket->size);
 
-			m_OffSetReceive = m_OffSetReceive - pPacket->size;
-			memcpy(m_ReceiveBuffer, m_ReceiveBuffer + pPacket->size, m_OffSetReceive);
+				m_OffSetReceive = m_OffSetReceive - pPacket->size;
+				memcpy(m_ReceiveBuffer, m_ReceiveBuffer + pPacket->size, m_OffSetReceive);
 
-			shared_ptr<char[]> pBuffer(m_ReceiveBuffer);
-
-			m_pWorkerStrand->dispatch(boost::bind(m_WorkerCallBack, shared_from_this(), pBuffer));
-		}
-		else {
-			break;
+				m_pWorkerStrand->dispatch(boost::bind(m_WorkerCallBack, shared_from_this(), pBuffer));
+			}
+			else {
+				break;
+			}
 		}
 	}
 
