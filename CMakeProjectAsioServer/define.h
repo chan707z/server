@@ -7,7 +7,3 @@
 #define HEADER_SIZE 8
 
 using namespace std;
-
-struct Buffer {
-	char buffer[MAX_BUFFER] = {0,};
-};

@@ -6,11 +6,12 @@
 
 using namespace boost::asio;
 
+class Buffer;
 class AsioSectionManager;
 class AsioSection;
 class AsioServer
 {
-	typedef function<void(shared_ptr<AsioSection>, shared_ptr<Buffer>)> onWorkerCallBack;
+	using onWorkerCallBack = function<void(shared_ptr<AsioSection>, shared_ptr<Buffer>)>;
 public:
 	AsioServer();
 	~AsioServer();

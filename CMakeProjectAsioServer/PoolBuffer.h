@@ -17,7 +17,6 @@
 //	void ReadData();
 //
 //private:
-//	mutex m_Mutex;
 //	vector<Buffer> m_vecBuffer;
 //	shared_ptr<io_service::strand> m_pWorkerStrand = nullptr;
 //	function<void(shared_ptr<AsioSection>, const char*, const size_t&)> m_WorkerCallBack;

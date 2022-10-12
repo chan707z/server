@@ -6,10 +6,11 @@
 
 using namespace boost::asio;
 
+class Buffer;
 class UserBase;
 class AsioSection : public BaseSection, enable_shared_from_this<AsioSection>
 {
-	typedef function<void(shared_ptr<AsioSection>, shared_ptr<Buffer>)> onWorkerCallBack;
+	using onWorkerCallBack = function<void(shared_ptr<AsioSection>, shared_ptr<Buffer>)>;
 
 public:
 	AsioSection(shared_ptr<io_service> pNetworkService, shared_ptr<io_service> pWorkerService, shared_ptr<ip::tcp::acceptor> pAcceptor, onWorkerCallBack workerCallBack);

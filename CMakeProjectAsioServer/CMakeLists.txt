@@ -47,7 +47,7 @@ ENDIF()
 SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${dir} )
 
 # 이 프로젝트의 실행 파일에 소스를 추가합니다.
-add_executable (${CMAKE_PROJECT_NAME} "CMakeProjectAsioServer.cpp" "CMakeProjectAsioServer.h" "AsioServer.h" "AsioServer.cpp" "AsioSection.h" "AsioSection.cpp" "AsioSectionManager.h" "AsioSectionManager.cpp" "TestWorker.cpp" "TestWorker.h" "UserBase.h" "UserBase.cpp" "PoolBuffer.h" "PoolBuffer.cpp"   "ThreadManager.h" "ThreadManager.cpp"   "Buffer.h" "Buffer.cpp" "BaseWorker.h" "BaseWorker.cpp" "Protocol.h" "BaseSection.h" "BaseSection.cpp")
+add_executable (${CMAKE_PROJECT_NAME} "CMakeProjectAsioServer.cpp" "CMakeProjectAsioServer.h" "AsioServer.h" "AsioServer.cpp" "AsioSection.h" "AsioSection.cpp" "AsioSectionManager.h" "AsioSectionManager.cpp" "TestWorker.cpp" "TestWorker.h" "UserBase.h" "UserBase.cpp" "PoolBuffer.h" "PoolBuffer.cpp"   "ThreadManager.h" "ThreadManager.cpp"   "Buffer.h" "Buffer.cpp"   "Protocol.h" "BaseSection.h" "BaseSection.cpp" "ProtocolEnum.h" "ErrorCode.h" "User.h" "User.cpp" "UserManager.h" "UserManager.cpp" "Singleton.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 20)

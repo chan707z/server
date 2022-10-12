@@ -3,6 +3,7 @@
 #include "PoolBuffer.h"
 #include "UserBase.h"
 #include "Protocol.h"
+#include "Buffer.h"
 
 //test
 #include <iostream>
@@ -76,23 +77,22 @@ void AsioSection::onReceive(shared_ptr<AsioSection> pSection, const boost::syste
 	}
 
 	m_OffSetReceive += static_cast<int>(bytes_transferred);
+	unsigned int remainedOffset = m_OffSetReceive;
 
-	if (m_OffSetReceive > HEADER_SIZE) {
+	if (remainedOffset > HEADER_SIZE) {
 		while (true) {
-			Protocol_Packet* pPacket = reinterpret_cast<Protocol_Packet*>(m_ReceiveBuffer);
-			if (m_OffSetReceive >= pPacket->size) {
-				shared_ptr<Buffer> pBuffer = make_shared<Buffer>();
-				memcpy(pBuffer->buffer, m_ReceiveBuffer, pPacket->size);
-
-				m_OffSetReceive = m_OffSetReceive - pPacket->size;
-				memcpy(m_ReceiveBuffer, m_ReceiveBuffer + pPacket->size, m_OffSetReceive);
-
+			PT_Packet2S* pPacket = reinterpret_cast<PT_Packet2S*>(m_ReceiveBuffer);
+			if (remainedOffset >= pPacket->size) {
+				shared_ptr<Buffer> pBuffer = make_shared<Buffer>(m_ReceiveBuffer, pPacket->size);
+				remainedOffset = remainedOffset - pPacket->size;
 				m_pWorkerStrand->dispatch(boost::bind(m_WorkerCallBack, shared_from_this(), pBuffer));
 			}
 			else {
 				break;
 			}
 		}
+
+		memcpy(m_ReceiveBuffer, m_ReceiveBuffer + (m_OffSetReceive - remainedOffset), remainedOffset);
 	}
 
 	_Recive();
